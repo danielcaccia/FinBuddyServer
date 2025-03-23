@@ -1,5 +1,6 @@
 # Main imports
 import os
+import sqlite3
 from dotenv import load_dotenv
 
 # General Plaid API imports
@@ -75,3 +76,33 @@ def fetch_transactions(access_token):
         })
 
     return transactions
+
+# Save Access Token
+def save_access_token(user_id, access_token):
+    conn = sqlite3.connect("finbuddy.db")
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+    INSERT INTO users (user_id, access_token) 
+    VALUES (?, ?)
+    ON CONFLICT(user_id) DO UPDATE SET access_token = excluded.access_token
+    """, (user_id, access_token))
+    
+    conn.commit()
+    conn.close()
+
+# Fetch Access Token
+def fetch_access_token(user_id):
+    conn = sqlite3.connect("finbuddy.db")
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT access_token FROM users WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+
+    conn.close()
+    
+    conn.commit()
+    conn.close()
+    
+    return result
+    
