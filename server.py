@@ -16,7 +16,7 @@ app = Flask(__name__)
 load_dotenv()
 
 # Link Token Endpoint
-@app.route('/create-link-token', methods=['GET'])
+@app.route('/create_link_token', methods=['GET'])
 def create_link():
     try:
         link_token = create_link_token()
@@ -33,7 +33,7 @@ def get_access_token():
     user_id = data.get("user_id")
 
     try:
-        access_token = exchange_public_token(public_token, user_id)
+        access_token = exchange_public_token(public_token)
 
         save_access_token(user_id, access_token)
         

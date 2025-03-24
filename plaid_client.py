@@ -1,6 +1,8 @@
 # Main imports
 import os
+import uuid
 import sqlite3
+
 from dotenv import load_dotenv
 
 # General Plaid API imports
@@ -37,7 +39,7 @@ plaid_client = PlaidApi(api_client)
 # Public Token request
 def create_link_token():
     request = LinkTokenCreateRequest(
-        user={"client_user_id": "user123"},
+        user={"client_user_id": str(uuid.uuid4())},
         client_name="FinBuddy",
         products=[Products('transactions')],
         country_codes=[CountryCode('US')],
@@ -49,7 +51,7 @@ def create_link_token():
     return response["link_token"]
 
 # Access Token request
-def exchange_public_token(public_token, user_id):
+def exchange_public_token(public_token):
     request = ItemPublicTokenExchangeRequest(public_token=public_token)
     response = plaid_client.item_public_token_exchange(request)
 
@@ -82,6 +84,13 @@ def save_access_token(user_id, access_token):
     conn = sqlite3.connect("finbuddy.db")
     cursor = conn.cursor()
     
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        user_id TEXT PRIMARY KEY,
+        access_token TEXT
+    )
+    """)
+
     cursor.execute("""
     INSERT INTO users (user_id, access_token) 
     VALUES (?, ?)
