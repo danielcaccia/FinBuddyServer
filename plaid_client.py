@@ -1,6 +1,7 @@
 # Main imports
 import os
 import uuid
+import datetime
 import sqlite3
 
 from dotenv import load_dotenv
@@ -43,7 +44,7 @@ def create_link_token():
         client_name="FinBuddy",
         products=[Products('transactions')],
         country_codes=[CountryCode('US')],
-        language="en"
+        language="en",
     )
 
     response = plaid_client.link_token_create(request)
@@ -59,11 +60,14 @@ def exchange_public_token(public_token):
 
 # Transactions
 def fetch_transactions(access_token):
+    start_date = datetime.date(2024, 1, 1)
+    end_date = datetime.date(2025, 3, 1)
+    
     request = TransactionsGetRequest(
         access_token=access_token,
-        start_date="2024-01-01",
-        end_date="2024-03-01",
-        options=TransactionsGetRequestOptions(count=10)
+        start_date=start_date,
+        end_date=end_date,
+        options=TransactionsGetRequestOptions(count=50)
     )
 
     response = plaid_client.transactions_get(request)
@@ -107,8 +111,6 @@ def fetch_access_token(user_id):
     
     cursor.execute("SELECT access_token FROM users WHERE user_id = ?", (user_id,))
     result = cursor.fetchone()
-
-    conn.close()
     
     conn.commit()
     conn.close()
