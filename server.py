@@ -32,11 +32,8 @@ def get_access_token():
     public_token = data.get("public_token")
     user_id = data.get("user_id")
 
-    if not user_id:
-        return jsonify({"error": "User ID is required"}), 400
-
     try:
-        access_token = exchange_public_token(public_token)
+        access_token = exchange_public_token(public_token, user_id)
 
         save_access_token(user_id, access_token)
         

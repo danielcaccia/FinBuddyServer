@@ -49,7 +49,7 @@ def create_link_token():
     return response["link_token"]
 
 # Access Token request
-def exchange_public_token(public_token):
+def exchange_public_token(public_token, user_id):
     request = ItemPublicTokenExchangeRequest(public_token=public_token)
     response = plaid_client.item_public_token_exchange(request)
 
