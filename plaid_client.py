@@ -23,6 +23,9 @@ from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchan
 from plaid.model.transactions_get_request import TransactionsGetRequest
 from plaid.model.transactions_get_request_options import TransactionsGetRequestOptions
 
+# Institutions imports
+from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
+
 load_dotenv()
 
 # API Configuration
@@ -82,6 +85,20 @@ def fetch_transactions(access_token):
         })
 
     return transactions
+
+# Institutions
+def get_institution_by_id(institution_id):
+    request = InstitutionsGetByIdRequest(
+
+    )
+    LinkTokenCreateRequest(
+        institution_id=institution_id,
+        country_codes=[CountryCode('US')]
+    )
+
+    response = plaid_client.institutions_get_by_id(request)
+
+    return response["institution"]
 
 # Save Access Token
 def save_access_token(user_id, access_token):

@@ -57,6 +57,23 @@ def get_transactions():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+# Institution Endpoint
+@app.route('/get_institution_by_id', methods=['POST'])
+def get_institution_by_id():
+    data = request.json
+    institution_id = data.get("institution_id")
+
+    if not institution_id:
+        return jsonify({"error": "Institution ID is required"}), 400
+
+    institution = get_institution_by_id(institution_id)
+
+    if institution:
+        return jsonify({"institution": institution}), 200
+    else:
+        return jsonify({"error": "No access token found"}), 404
+
+# Fetch Access Token from db Endpoint
 @app.route('/get_access_token', methods=['POST'])
 def get_access_token_from_db():
     data = request.json
