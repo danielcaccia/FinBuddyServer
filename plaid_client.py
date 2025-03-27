@@ -1,34 +1,21 @@
-# Main imports
 import os
 import uuid
 import datetime
-import sqlite3
 
 from dotenv import load_dotenv
-
-# General Plaid API imports
 import plaid
 from plaid import Configuration, ApiClient
 from plaid.api.plaid_api import PlaidApi
-
-# Public Token imports
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
-
-# Access Token imports
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
-
-# Transactions imports
 from plaid.model.transactions_get_request import TransactionsGetRequest
 from plaid.model.transactions_get_request_options import TransactionsGetRequestOptions
-
-# Institutions imports
 from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
 
 load_dotenv()
 
-# API Configuration
 configuration = Configuration(
     host=plaid.Environment.Sandbox,
     api_key={
@@ -40,8 +27,11 @@ configuration = Configuration(
 api_client = ApiClient(configuration)
 plaid_client = PlaidApi(api_client)
 
-# Public Token request
+
 def create_link_token():
+    """
+    Create a Plaid link-tokenthat will be used on the frontend.
+    """
     request = LinkTokenCreateRequest(
         user={"client_user_id": str(uuid.uuid4())},
         client_name="FinBuddy",
@@ -51,20 +41,24 @@ def create_link_token():
     )
 
     response = plaid_client.link_token_create(request)
-
     return response["link_token"]
 
-# Access Token request
+
 def exchange_public_token(public_token):
+    """
+    Exchange a public token for an access token.
+    """
     request = ItemPublicTokenExchangeRequest(public_token=public_token)
     response = plaid_client.item_public_token_exchange(request)
-
     return response["access_token"]
 
-# Transactions
+
 def fetch_transactions(access_token):
+    """
+    Fetch the transactions of a user using the access token.
+    """
     start_date = datetime.date(2024, 1, 1)
-    end_date = datetime.date(2025, 3, 1)
+    end_date = datetime.date(2025, 3, 27)
     
     request = TransactionsGetRequest(
         access_token=access_token,
@@ -86,51 +80,15 @@ def fetch_transactions(access_token):
 
     return transactions
 
-# Institutions
-def get_institution_by_id(institution_id):
-    request = InstitutionsGetByIdRequest(
 
-    )
-    LinkTokenCreateRequest(
+def get_institution_by_id(institution_id):
+    """
+    Fetch information of an institution by a given Id.
+    """
+    request = InstitutionsGetByIdRequest(
         institution_id=institution_id,
         country_codes=[CountryCode('US')]
     )
 
     response = plaid_client.institutions_get_by_id(request)
-
     return response["institution"]
-
-# Save Access Token
-def save_access_token(user_id, access_token):
-    conn = sqlite3.connect("finbuddy.db")
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
-        access_token TEXT
-    )
-    """)
-
-    cursor.execute("""
-    INSERT INTO users (user_id, access_token) 
-    VALUES (?, ?)
-    ON CONFLICT(user_id) DO UPDATE SET access_token = excluded.access_token
-    """, (user_id, access_token))
-    
-    conn.commit()
-    conn.close()
-
-# Fetch Access Token
-def fetch_access_token(user_id):
-    conn = sqlite3.connect("finbuddy.db")
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT access_token FROM users WHERE user_id = ?", (user_id,))
-    result = cursor.fetchone()
-    
-    conn.commit()
-    conn.close()
-    
-    return result
-    
