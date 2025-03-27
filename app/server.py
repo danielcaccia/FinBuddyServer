@@ -1,13 +1,8 @@
-from flask import Flask, request, jsonify
-from dotenv import load_dotenv
+from flask import Blueprint, request, jsonify
+from .plaid_client import create_link_token, exchange_public_token, fetch_transactions, get_institution_by_id
+from .sqlite_client import save_access_token, fetch_access_token
 
-from plaid_client import create_link_token, exchange_public_token, fetch_transactions
-from sqlite_client import save_access_token, fetch_access_token
-
-# Carregar variáveis de ambiente
-load_dotenv()
-
-app = Flask(__name__)
+app = Blueprint('server', __name__)
 
 @app.route('/create_link_token', methods=['GET'])
 def create_link():

@@ -1,5 +1,5 @@
-venv/
+finbuddy.db
 __pycache__/
 *.pyc
 .env
-finbuddy.db
+venv/
