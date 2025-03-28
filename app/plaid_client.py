@@ -73,9 +73,11 @@ def fetch_transactions(access_token):
     for txn in response["transactions"]:
         transactions.append({
             "id": txn["transaction_id"],
-            "name": txn["merchant_name"] or txn["name"],
+            "name": txn["name"],
             "amount": txn["amount"],
-            "date": txn["date"]
+            "date": txn["date"],
+            "logo_url": txn.get("logo_url"),
+            "merchant_name": txn.get("merchant_name")
         })
 
     return transactions
